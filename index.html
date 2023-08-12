@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar</title>
+  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body>
+  <div class="video-background">
+    <video autoplay muted loop id="video-bg">
+      <source src="vid.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+
+  <div class="container">
+    <div class="calendar">
+      <div class="month">
+        <i class="fas fa-angle-left prev"></i>
+        <div class="date">
+          <h1></h1>
+          <p></p>
+        </div>
+        <i class="fas fa-angle-right next"></i>
+        <div class="year-label">
+          <p></p>
+        </div>
+      </div>
+      <div class="weekdays">
+        <div>Sun</div>
+        <div>Mon</div>
+        <div>Tue</div>
+        <div>Wed</div>
+        <div>Thu</div>
+        <div>Fri</div>
+        <div>Sat</div>
+      </div>
+      <div class="days"></div>
+    </div>
+    <div class="content-section" id="contentSection">
+      <div class="date-content" id="dateContent"></div>
+    </div>
+    <div class="modal" id="confirmationModal">
+      <div class="modal-content">
+        <p id="confirmationMessage"></p>
+        <button id="confirmButton">Confirm</button>
+        <button id="cancelButton">Cancel</button>
+      </div>
+    </div>
+    <div class="modal" id="teamNameModal">
+      <div class="modal-content">
+        <span class="close" id="teamNameCancel">&times;</span>
+        <h2>Select Team</h2>
+        <select id="teamNameSelect">
+          <option value="Info">Info</option>
+          <option value="Incident">Incident</option>
+          <option value="Food & Procurement">Food & Procurement</option>
+          <option value="Security & Laundry">Security & Laundry</option>
+          <option value="IT">IT</option>
+          <option value="Account SBHL">Account SBHL</option>
+          <option value="Account AE">Account AE</option>
+          <option value="Account RAH">Account RAH</option>
+          <option value="MPR">MPR</option>
+          <option value="Maintenance">Maintenance</option>
+          <option value="Care Support">Care Support</option>
+          <option value="Training">Training</option>
+          <option value="Data Analyst">Data Analyst</option>
+          <option value="Developer">Developer</option>
+          <option value="AEX & CEX">AEX & CEX</option>
+          <option value="HR/GM">HR/GM</option>
+
+        </select>
+        <button id="teamNameSubmit">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
