@@ -6,30 +6,30 @@ if (storedContent) {
 
 const date = new Date();
 const timeSlots = [
-  { time: "9:30 am - 10:00 am", booked: false },
-  { time: "10:00 am - 10:30 am", booked: false },
-  { time: "10:30 am - 11:00 am", booked: false },
-  { time: "11:00 am - 11:30 am", booked: false },
-  { time: "11:30 am - 12:00 pm", booked: false },
-  { time: "12:00 pm - 12:30 pm", booked: false },
-  { time: "12:30 pm - 1:00 pm", booked: false },
-  { time: "1:00 pm - 1:30 pm", booked: false },
-  { time: "1:30 pm - 2:00 pm", booked: false },
-  { time: "2:00 pm - 2:30 pm", booked: false },
-  { time: "2:30 pm - 3:00 pm", booked: false },
-  { time: "3:00 pm - 3:30 pm", booked: false },
-  { time: "3:30 pm - 4:00 pm", booked: false },
-  { time: "4:00 pm - 4:30 pm", booked: false },
-  { time: "4:30 pm - 5:00 pm", booked: false },
-  { time: "5:00 pm - 5:30 pm", booked: false },
-  { time: "5:30 pm - 6:00 pm", booked: false },
-  { time: "6:00 pm - 6:30 pm", booked: false },
-  { time: "6:30 pm - 7:00 pm", booked: false },
-  { time: "7:00 pm - 7:30 pm", booked: false },
-  { time: "7:30 pm - 8:00 pm", booked: false },
-  { time: "8:00 pm - 8:30 pm", booked: false },
-  { time: "8:30 pm - 9:00 pm", booked: false },
-  { time: "9:00 pm - 9:30 pm", booked: false }
+  { time: "9:30 am - 10:00 am", booked: false, bookedBy: null },
+  { time: "10:00 am - 10:30 am", booked: false, bookedBy: null },
+  { time: "10:30 am - 11:00 am", booked: false, bookedBy: null },
+  { time: "11:00 am - 11:30 am", booked: false, bookedBy: null },
+  { time: "11:30 am - 12:00 pm", booked: false, bookedBy: null },
+  { time: "12:00 pm - 12:30 pm", booked: false, bookedBy: null },
+  { time: "12:30 pm - 1:00 pm", booked: false, bookedBy: null },
+  { time: "1:00 pm - 1:30 pm", booked: false, bookedBy: null },
+  { time: "1:30 pm - 2:00 pm", booked: false, bookedBy: null },
+  { time: "2:00 pm - 2:30 pm", booked: false, bookedBy: null },
+  { time: "2:30 pm - 3:00 pm", booked: false, bookedBy: null },
+  { time: "3:00 pm - 3:30 pm", booked: false, bookedBy: null },
+  { time: "3:30 pm - 4:00 pm", booked: false, bookedBy: null },
+  { time: "4:00 pm - 4:30 pm", booked: false, bookedBy: null },
+  { time: "4:30 pm - 5:00 pm", booked: false, bookedBy: null },
+  { time: "5:00 pm - 5:30 pm", booked: false, bookedBy: null },
+  { time: "5:30 pm - 6:00 pm", booked: false, bookedBy: null },
+  { time: "6:00 pm - 6:30 pm", booked: false, bookedBy: null },
+  { time: "6:30 pm - 7:00 pm", booked: false, bookedBy: null },
+  { time: "7:00 pm - 7:30 pm", booked: false, bookedBy: null },
+  { time: "7:30 pm - 8:00 pm", booked: false, bookedBy: null },
+  { time: "8:00 pm - 8:30 pm", booked: false, bookedBy: null },
+  { time: "8:30 pm - 9:00 pm", booked: false, bookedBy: null },
+  { time: "9:00 pm - 9:30 pm", booked: false, bookedBy: null }
 ];
 
 const teams = [
@@ -56,34 +56,23 @@ const showDateContent = (date) => {
 
   // Convert the clicked date to a string in the "YYYY-MM-DD" format
   const clickedDateString = date.toISOString().split('T')[0];
-
-  // Find the content entry that matches the clicked date
-  const selectedContent = content.find((item) => item.date === clickedDateString);
+  const key = `bookedSlots_${clickedDateString}`;
+  const selectedSlots = JSON.parse(localStorage.getItem(key)) || [];
 
   const slotsHtml = timeSlots.map((slot) => {
-    if (selectedContent && selectedContent.slots.includes(slot.time)) {
-      return `<div class="booked-slot">${slot.time} - Booked</div>`;
-    } else if (!slot.booked) {
-      return `<div class="time-slot" data-booked="${slot.booked}" onclick="bookSlotConfirmation('${slot.time}', '${clickedDateString}')">${slot.time}</div>`;
+    const slotTime = slot.time;
+    const isSlotBooked = selectedSlots.some((bookedSlot) => bookedSlot.time === slotTime);
+    if (isSlotBooked) {
+      const bookedSlot = selectedSlots.find((bookedSlot) => bookedSlot.time === slotTime);
+      return `<div class="booked-slot">${slot.time} - Booked by ${bookedSlot.team}</div>`;
     } else {
-      return `<div class="time-slot booked">${slot.time} - Booked</div>`;
+      return `<div class="time-slot" data-booked="${slot.booked}" onclick="bookSlotConfirmation('${slot.time}', '${clickedDateString}')">${slot.time}</div>`;
     }
   }).join('');
 
   dateContent.innerHTML = `<h2 class="date-heading">${date.toDateString()}</h2><div class="slots-container">${slotsHtml}</div>`;
   dateContent.style.display = "block";
 };
-
-const renderCalendar = () => {
-  date.setDate(1);
-
-  const daysDiv = document.querySelector(".days");
-  const monthDays = document.querySelector(".days");
-  const yearLabel = document.querySelector(".year-label");
-  const currentYear = date.getFullYear();
-  yearLabel.querySelector("p").textContent = currentYear;
-
-  let days = ""; 
 
 const bookSlotConfirmation = (slot, date) => {
   const teamNameModal = document.getElementById('teamNameModal');
@@ -131,32 +120,41 @@ const bookSlotConfirmation = (slot, date) => {
     teamNameModal.style.display = 'none';
   };
 };
- 
+
 const bookSlot = (time, date, team) => {
-  // Find the content entry that matches the selected date
-  let selectedContent = content.find((item) => item.date === date);
+  const clickedDateString = date.toISOString().split('T')[0];
+  const key = `bookedSlots_${clickedDateString}`;
 
-  // If no entry exists for the selected date, create a new one
-  if (!selectedContent) {
-    selectedContent = { date, slots: [] };
-    content.push(selectedContent);
-  }
+  // Retrieve existing booked slots for the date
+  const existingSlots = JSON.parse(localStorage.getItem(key)) || [];
 
-  // Add the booked slot to the selected date's slots
-  selectedContent.slots.push(time);
+  // Add the booked slot and booking team to the list of existing slots
+  existingSlots.push({ time, team });
 
-  // Update local storage with the modified content
-  localStorage.setItem('bookedSlots', JSON.stringify(content));
+  // Update local storage with the modified slots for the date
+  localStorage.setItem(key, JSON.stringify(existingSlots));
 
   // Mark the time slot as booked
   const slotIndex = timeSlots.findIndex((slot) => slot.time === time);
   if (slotIndex !== -1) {
     timeSlots[slotIndex].booked = true;
+    timeSlots[slotIndex].bookedBy = team;
   }
 
   // Re-render the calendar
   renderCalendar();
 };
+
+const renderCalendar = () => {
+  date.setDate(1);
+
+  const daysDiv = document.querySelector(".days");
+  const monthDays = document.querySelector(".days");
+  const yearLabel = document.querySelector(".year-label");
+  const currentYear = date.getFullYear();
+  yearLabel.querySelector("p").textContent = currentYear;
+
+  let days = ""; 
 
   
   
