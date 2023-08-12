@@ -191,19 +191,43 @@ html {
 }
 
 .date-content .booked-slot {
-  background-color: #ffffff;
-  color: #ff1717;
-  padding: 0.2rem;
-  margin: 0.2rem;
-  border-radius: 0.2rem;
-  font-size: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #51b0fd6c;
+  color: #ffffff;
+  padding: 0.6rem;
+  margin: 0.5rem;
+  border-radius: 1rem;
+  font-size: 1.3rem;
   font-weight: bold;
   text-align: center;
-  border: 1px solid #ff1717;
+  border: 1px solid #008bee;
+  box-shadow: 0 2px 4px rgba(8, 239, 255, 0.1);
+  transition: background-color 0.3s, transform 0.3s;
 }
+
+.date-content .booked-slot:hover {
+  color: #0084ff;
+  background-color: #e6f5ff9a;
+  transform: scale(1.05);
+}
+
   
+.slots-container {
+  display: grid;
+  text-align: center;
+  grid-template-columns: repeat(2, 1fr); /* Change the number of columns as needed */
+  justify-content: center; /* Center columns horizontally */
+  align-items: center; /* Center rows vertically */
+  gap: 0.5rem;
+  grid-gap: 0.5rem;
+}
+
 .time-slot {
-  padding: 0.5rem;
+  padding: 0.6rem;
+  margin: 0.5rem;
+  font-size: 1.3rem;
   border: 1px solid #312a2a;
   background-color: #ffffff9d;
   margin-bottom: 0.5rem;
@@ -212,27 +236,17 @@ html {
   font-weight: bold;
   border-radius: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: calc(50% - 0.25rem); /* Distribute slots in two columns with spacing */
-
 }
 
 .time-slot:hover {
   background-color: #1e92ff6e;
   transform: scale(1.05);
   border-color: #059cf3;
+  color: #ffffff;
 }
 
-.slots-container {
-  display: grid;
-  align-content: center;
+.time-slot span {
   text-align: center;
-  grid-template-columns: repeat(2, 1fr);
-  justify-content: center; /* Center columns horizontally */
-  align-items: center; /* Center rows vertically */
-  gap: 0.5rem;
-  grid-gap: 0.5rem;
-  justify-content: center;
-  margin-left: 15rem;
 }
 
 .date-heading {
