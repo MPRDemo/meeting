@@ -1,410 +1,287 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Quicksand", sans-serif;
+let content = []; // Initialize an empty array to hold the content
+const storedContent = localStorage.getItem('bookedSlots');
+if (storedContent) {
+  content = JSON.parse(storedContent);
 }
 
-html {
-  font-size: 62.5%;
-}
+const date = new Date();
+const timeSlots = [
+  { time: "9:30 am - 10:00 am", booked: false, bookedBy: null },
+  { time: "10:00 am - 10:30 am", booked: false, bookedBy: null },
+  { time: "10:30 am - 11:00 am", booked: false, bookedBy: null },
+  { time: "11:00 am - 11:30 am", booked: false, bookedBy: null },
+  { time: "11:30 am - 12:00 pm", booked: false, bookedBy: null },
+  { time: "12:00 pm - 12:30 pm", booked: false, bookedBy: null },
+  { time: "12:30 pm - 1:00 pm", booked: false, bookedBy: null },
+  { time: "1:00 pm - 1:30 pm", booked: false, bookedBy: null },
+  { time: "1:30 pm - 2:00 pm", booked: false, bookedBy: null },
+  { time: "2:00 pm - 2:30 pm", booked: false, bookedBy: null },
+  { time: "2:30 pm - 3:00 pm", booked: false, bookedBy: null },
+  { time: "3:00 pm - 3:30 pm", booked: false, bookedBy: null },
+  { time: "3:30 pm - 4:00 pm", booked: false, bookedBy: null },
+  { time: "4:00 pm - 4:30 pm", booked: false, bookedBy: null },
+  { time: "4:30 pm - 5:00 pm", booked: false, bookedBy: null },
+  { time: "5:00 pm - 5:30 pm", booked: false, bookedBy: null },
+  { time: "5:30 pm - 6:00 pm", booked: false, bookedBy: null },
+  { time: "6:00 pm - 6:30 pm", booked: false, bookedBy: null },
+  { time: "6:30 pm - 7:00 pm", booked: false, bookedBy: null },
+  { time: "7:00 pm - 7:30 pm", booked: false, bookedBy: null },
+  { time: "7:30 pm - 8:00 pm", booked: false, bookedBy: null },
+  { time: "8:00 pm - 8:30 pm", booked: false, bookedBy: null },
+  { time: "8:30 pm - 9:00 pm", booked: false, bookedBy: null },
+  { time: "9:00 pm - 9:30 pm", booked: false, bookedBy: null }
+];
 
-.video-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
+const teams = [
+  "Info",
+  "Incident",
+  "Food & Procurement",
+  "Security & Laundry",
+  "IT",
+  "Account SBHL",
+  "Account AE",
+  "Account RAH",
+  "MPR",
+  "Maintenance",
+  "Care Support",
+  "Training",
+  "Data Analyst",
+  "Developer",
+  "AEX & CEX",
+  "HR/GM"
+];
 
-#video-bg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+const showDateContent = (date) => {
+  const dateContent = document.getElementById("dateContent");
 
-.container {
-  position: relative; /* Allow content to be placed on top of the video */
-  z-index: 1;
-  width: 100%;
-  height: 100vh;
-  background-color: rgba(255, 255, 255, 0.808); /* Add a semi-transparent background */
-  color: #333;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  padding-left: 2rem;
-  padding-right: 6rem;
-  box-sizing: border-box;
-}
+  // Convert the clicked date to a string in the "YYYY-MM-DD" format
+  const clickedDateString = date.toISOString().split('T')[0];
+  const key = `bookedSlots_${clickedDateString}`;
+  const selectedSlots = JSON.parse(localStorage.getItem(key)) || [];
 
-.calendar {
-  width: 45rem;
-  height: 52rem;
-  background-color: #ffffff94;
-  box-shadow: 0 0.5rem 3rem rgba(0, 0, 0, 0.2);
-  border-radius: 1rem;
-  overflow: hidden;
-  margin-left: 2rem;
-  margin-right: 4rem;
-}
+  const slotsHtml = timeSlots.map((slot) => {
+    const slotTime = slot.time;
+    const isSlotBooked = selectedSlots.some((bookedSlot) => bookedSlot.time === slotTime);
+    if (isSlotBooked) {
+      const bookedSlot = selectedSlots.find((bookedSlot) => bookedSlot.time === slotTime);
+      return `<div class="booked-slot">${slot.time} - Booked by ${bookedSlot.team}</div>`;
+    } else {
+      const isSlotAvailable = slot.booked === false;
+      const dataBooked = isSlotAvailable ? 'false' : 'true';
+      return `<div class="time-slot" data-booked="${dataBooked}" onclick="bookSlotConfirmation('${slot.time}', '${clickedDateString}', ${isSlotAvailable})">${slot.time}</div>`;
+    }
+  }).join('');
 
-.month {
-  width: 100%;
-  height: 12rem;
-  background-color: #6ca0d8;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 2rem;
-  text-align: center;
-  text-shadow: 0 0.3rem 0.5rem rgba(17, 248, 248, 0.1);
-}
+  dateContent.innerHTML = `<h2 class="date-heading">${date.toDateString()}</h2><div class="slots-container">${slotsHtml}</div>`;
+  dateContent.style.display = "block";
+};
 
-.month i {
-  font-size: 2.5rem;
-  cursor: pointer;
-  color: #333333;
-  transition: color 0.3s;
-}
 
-.month i:hover {
-  color: #ffffff;
-}
+const bookSlotConfirmation = (slot, date) => {
+  const teamNameModal = document.getElementById('teamNameModal');
+  const teamNameSelect = document.getElementById('teamNameSelect');
 
-.month h1 {
-  font-size: 3rem;
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.2rem;
-  margin-bottom: 1rem;
-  color: #333333;
-}
+  // Clear selected team and show the team selection modal
+  teamNameSelect.value = '';
+  teamNameModal.style.display = 'block';
 
-.weekdays {
-  width: 100%;
-  height: 5rem;
-  padding: 0 0.4rem;
-  display: flex;
-  align-items: center;
-}
+  // Handle submit and cancel buttons
+  const teamNameSubmit = document.getElementById('teamNameSubmit');
+  const teamNameCancel = document.getElementById('teamNameCancel');
 
-.weekdays div {
-  font-size: 1.5rem;
-  font-weight: 400;
-  letter-spacing: 0.1rem;
-  width: calc(44.2rem / 7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-shadow: 0 0.3rem 0.5rem rgba(0, 143, 209, 0.288);
-  color: #4e4747;
-}
+  teamNameSubmit.onclick = () => {
+    const selectedTeam = teamNameSelect.value;
+    if (selectedTeam) {
+      // Set confirmation message
+      const confirmationMessage = `Do you want to book the slot: ${slot} for Team: ${selectedTeam}?`;
+      document.getElementById('confirmationMessage').textContent = confirmationMessage;
 
-.days {
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  padding: 0.2rem;
-}
+      // Hide the team selection modal
+      teamNameModal.style.display = 'none';
 
-.days div {
-  font-size: 1.4rem;
-  margin: 0.3rem;
-  width: calc(40.2rem / 7);
-  height: 5rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-shadow: 0 0.3rem 0.5rem rgba(106, 109, 129, 0.774);
-  transition: background-color 0.2s, box-shadow 0.2s;
-  cursor: pointer;
-  background-color: #ffffff52;
-  border-radius: 0.5rem;
-}
+      // Show the confirmation modal
+      const confirmationModal = document.getElementById('confirmationModal');
+      confirmationModal.style.display = 'block';
 
-.days div:hover:not(.today) {
-  background-color: #f0f0f06b;
-  border: 0.2rem solid #b3b3b396;
-  box-shadow: 0 0.2rem 1rem rgba(0, 0, 0, 0.1);
-}
+      // Handle confirm and cancel buttons for confirmation modal
+      const confirmButton = document.getElementById('confirmButton');
+      const cancelButton = document.getElementById('cancelButton');
 
-.prev-date,
-.next-date {
-  opacity: 0.5;
-}
+      confirmButton.onclick = () => {
+        // Code to book the slot and update the UI
+        confirmationModal.style.display = 'none';
+        bookSlot(slot, date, selectedTeam);
+        
+      };
 
-.today {
-  background-color: #8586889a;
-  color: #0000009a;
-  box-shadow: 0 0.2rem 1rem rgba(0, 81, 255, 0.37);
-  font-weight: bold;
-}
+      cancelButton.onclick = () => {
+        confirmationModal.style.display = 'none';
+      };
+    }
+  };
 
-.today:hover {
-  box-shadow: 0 0.2rem 1rem rgba(0, 0, 0, 0.3);
-}
+  teamNameCancel.onclick = () => {
+    teamNameModal.style.display = 'none';
+  };
+};
 
-.content-section {
-  flex: 1;
-  padding: 2rem;
-  background-color: #fff;
-  box-shadow: 0 0.5rem 3rem rgba(0, 0, 0, 0.2);
-  border-radius: 1rem;
-  overflow-y: auto;
-  padding: 2rem;
-}
+const bookSlot = (time, date, team) => {
+  const clickedDateString = date.toISOString().split('T')[0];
+  const key = `bookedSlots_${clickedDateString}`;
 
-.date-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center; /* Vertically center the content */
-  padding: 1rem; /* Add padding for spacing */
-  background-color: #e0e0e0;
-  background: url('Meeting.webp') center/cover no-repeat;
-  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1);
-  border-radius: 0.5rem;
-}
+  // Retrieve existing booked slots for the date
+  const existingSlots = JSON.parse(localStorage.getItem(key)) || [];
 
-.year {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem 0;
-}
+  // Add the booked slot and booking team to the list of existing slots
+  existingSlots.push({ time, team });
 
-.year-label {
-  text-align: center;
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-}
+  // Update local storage with the modified slots for the date
+  localStorage.setItem(key, JSON.stringify(existingSlots));
 
-.year-label p {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #333;
-  text-shadow: 0 0.3rem 0.5rem rgba(0, 0, 0, 0.1);
-}
+  // Mark the time slot as booked
+  const slotIndex = timeSlots.findIndex((slot) => slot.time === time);
+  if (slotIndex !== -1) {
+    timeSlots[slotIndex].booked = true;
+    timeSlots[slotIndex].bookedBy = team;
+  }
 
-.date-content .booked-slot {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #51b0fd6c;
-  color: #ffffff;
-  padding: 0.6rem;
-  margin: 0.5rem;
-  border-radius: 1rem;
-  font-size: 1.3rem;
-  font-weight: bold;
-  text-align: center;
-  border: 1px solid #008bee;
-  box-shadow: 0 2px 4px rgba(8, 239, 255, 0.1);
-  transition: background-color 0.3s, transform 0.3s;
-}
+  // Re-render the calendar
+  renderCalendar();
+};
 
-.date-content .booked-slot:hover {
-  color: #0084ff;
-  background-color: #e6f5ff9a;
-  transform: scale(1.05);
-}
+const renderCalendar = () => {
+  date.setDate(1);
+
+  const daysDiv = document.querySelector(".days");
+  const monthDays = document.querySelector(".days");
+  const yearLabel = document.querySelector(".year-label");
+  const currentYear = date.getFullYear();
+  yearLabel.querySelector("p").textContent = currentYear;
+
+  let days = ""; 
 
   
-.slots-container {
-  display: grid;
-  text-align: center;
-  grid-template-columns: repeat(2, 1fr); /* Change the number of columns as needed */
-  justify-content: center; /* Center columns horizontally */
-  align-items: center; /* Center rows vertically */
-  gap: 0.5rem;
-  grid-gap: 0.5rem;
-}
+  
+// Click event listener for date cells
+monthDays.addEventListener('click', (event) => {
+  const target = event.target;
+  if (target.classList.contains('prev-date') || target.classList.contains('next-date')) {
+    // Clicked on a previous or next month date, handle as needed
+  } else if (target.classList.contains('today')) {
+    const currentDate = new Date(); // Get the current date
+    showDateContent(currentDate);   // Pass the current date to the function
+  } else {
+    const day = parseInt(target.textContent);
+    const selectedDate = new Date(date.getFullYear(), date.getMonth(), day);
+    showDateContent(selectedDate); // Pass the selected date to the function
+  }
+});
 
-.time-slot {
-  padding: 0.6rem;
-  margin: 0.5rem;
-  font-size: 1.3rem;
-  border: 1px solid #312a2a;
-  background-color: #ffffff9d;
-  margin-bottom: 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-  font-weight: bold;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.time-slot:hover {
-  background-color: #1e92ff6e;
-  transform: scale(1.05);
-  border-color: #059cf3;
-  color: #ffffff;
-}
-
-.time-slot span {
-  text-align: center;
-}
-
-.date-heading {
-  font-size: 1.5rem;
-  color: #ffffff;
-  text-align: center;
-  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.692);
-  -webkit-text-stroke: 0.1px #000000; /* Add a border to the text */
-  margin-bottom: 0.9rem;
-  border: 2px solid #5555554d; /* Add a border */
-  padding: 0.5rem; /* Add padding for spacing */
-  background-color: #9fe9ff67;
-  /* Add transition for the hover effect */
-  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-}
-
-.date-heading:hover {
-  background-color: #ffffff80; /* Add a background color on hover */
-  color: #000000; /* Change the text color on hover */
-  border-color: #777; /* Change the border color on hover */
-  cursor: pointer; /* Change cursor to indicate interactivity */
-}
-
-/* Modal */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-/* Modal Content */
-.modal-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
-
-/* Confirm and Cancel Buttons */
-#confirmButton,
-#cancelButton {
-  display: inline-block;
-  margin: 10px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-#confirmButton {
-  background-color: #1e92ff;
-  color: white;
-}
-
-#cancelButton {
-  background-color: #ddd;
-}
-
-#teamNameModal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #f4f4f4;
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  width: 300px; /* Adjust the width as needed */
-  display: flex; /* Display children elements in a row */
-  flex-direction: column; /* Stack children elements vertically */
-  align-items: center; /* Center horizontally */
-}
-
-.modal-content p {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-}
-
-#teamNameInput {
-  width: 100%;
-  padding: 10px;
-  font-size: 1.4rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-bottom: 10px;
-}
-#teamNameSelect {
-  width: 100%;
-  padding: 5px;
-  font-size: 1.4rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-bottom: 10px;
-}
-
-.modal-buttons {
-  display: flex;
-  justify-content: flex-end; /* Align buttons to the right */
-  width: 100%; /* Make sure buttons span the full width */
-  margin-top: auto; /* Push buttons to the bottom */
-}
+// Click event listener for time slots
+document.addEventListener('click', (event) => {
+  const target = event.target;
+  if (target.classList.contains('time-slot')) {
+    const slot = target.textContent;
+    const currentDate = new Date(); // Get the current date
+    showDateContent(currentDate);   // Pass the current date to the function
+    bookSlotConfirmation(slot, currentDate); // Call the confirmation function with the slot and current date
+  }
+});
 
 
-#teamNameSubmit {
-  padding: 8px 16px;
-  font-size: 1.4rem;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-  margin-left: 10px; /* Add margin between buttons */
-  background-color: #007bff;
-  color: #fff;
-}
 
-#teamNameSubmit:hover {
-  background-color: #0056b3;
-}
+  const lastDay = new Date(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    0
+  ).getDate();
 
-#teamNameCancel {
-  box-sizing: border-box;
-  padding: 2px 8px;
-  font-size: 1.4rem;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: #d1d1d1;
-  color: #333;
-  border: 1px solid #aaa;
-  outline: none;
-}
+  const prevLastDay = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    0
+  ).getDate();
 
-#teamNameCancel:hover {
-  background-color: #b3b3b3;
-  border-color: #888;
-}
+  const firstDayIndex = date.getDay();
+
+  const lastDayIndex = new Date(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    0
+  ).getDay();
+
+  const nextDays = 7 - lastDayIndex - 1;
+
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  document.querySelector(".date h1").innerHTML = months[date.getMonth()];
+  yearLabel.querySelector("p").textContent = date.getFullYear();
+
+  for (let x = firstDayIndex; x > 0; x--) {
+    days += `<div class="prev-date">${prevLastDay - x + 1}</div>`;
+  }
+
+  for (let i = 1; i <= lastDay; i++) {
+    const currentDate = new Date(date.getFullYear(), date.getMonth(), i);
+    const today = new Date();
+
+    if (
+      currentDate.toDateString() === today.toDateString() &&
+      date.getMonth() === today.getMonth()
+    ) {
+      days += `<div class="today">${i}</div>`;
+    } else {
+      days += `<div>${i}</div>`;
+    }
+  }
+
+  for (let j = 1; j <= nextDays; j++) {
+    days += `<div class="next-date">${j}</div>`;
+  }
+
+  const currentDate = new Date();
+
+  // Open the date container for the current date
+  showDateContent(currentDate);
+
+  monthDays.innerHTML = days;
+
+  // Click event listener for previous year
+  document.querySelector(".prev-year").addEventListener("click", () => {
+    date.setFullYear(date.getFullYear() - 1);
+    renderCalendar();
+  });
+
+  // Click event listener for next year
+  document.querySelector(".next-year").addEventListener("click", () => {
+    date.setFullYear(date.getFullYear() + 1);
+    renderCalendar();
+  });
+
+};
+
+
+
+// Click event listener for previous month
+document.querySelector(".prev").addEventListener("click", () => {
+  date.setMonth(date.getMonth() - 1);
+  if (date.getMonth() === 11) {
+    date.setFullYear(date.getFullYear() - 1);
+  }
+  renderCalendar();
+});
+
+// Click event listener for next month
+document.querySelector(".next").addEventListener("click", () => {
+  date.setMonth(date.getMonth() + 1);
+  if (date.getMonth() === 0) {
+    date.setFullYear(date.getFullYear() + 1);
+  }
+  renderCalendar();
+});
+
+// Initial rendering of the calendar
+renderCalendar();
